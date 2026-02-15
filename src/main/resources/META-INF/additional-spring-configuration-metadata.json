@@ -1,0 +1,17 @@
+{"properties": [
+  {
+    "name": "jwt.private-key",
+    "type": "java.lang.String",
+    "description": "used to generate a jwt token"
+  },
+  {
+    "name": "jwt.public-key",
+    "type": "java.lang.String",
+    "description": "used to validate a jwt token in other services"
+  },
+  {
+    "name": "app.frontend.url",
+    "type": "java.lang.String",
+    "description": "login page redirect url"
+  }
+]}
