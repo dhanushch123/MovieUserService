@@ -16,9 +16,6 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 @Entity
-@Table(
-		uniqueConstraints = @UniqueConstraint(columnNames = {"username","email","mobile"})
-		)
 public class Users {
 	@Id
 	@GeneratedValue(strategy = GenerationType.UUID)
@@ -28,13 +25,14 @@ public class Users {
 	private String firstName;
 	@Column(nullable = false,length = 50)
 	private String lastName;
+	@Column(unique=true)
 	private String username;
-	@Column(nullable = false)
+	@Column(nullable = false,unique=true)
 	private String email;
 	@Column(nullable = true)
 	private String password;
 	private int age;
-	@Column(nullable = true)
+	@Column(nullable = true,unique=true)
 	private String mobile;
 	@Enumerated(EnumType.STRING)
 	private Gender gender;
