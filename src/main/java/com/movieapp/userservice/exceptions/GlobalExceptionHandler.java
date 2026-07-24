@@ -72,4 +72,18 @@ public class GlobalExceptionHandler {
                         "message", ex.getMessage()
                 ));
     }
+    
+    @ExceptionHandler(RuntimeException.class) 
+    public ResponseEntity<Map<String, Object>> handleException(
+            RuntimeException ex) {
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(Map.of(
+                        "timestamp", Instant.now(),
+                        "status", 404,
+                        "error", "User doesnt exist with given id",
+                        "message", ex.getMessage()
+                ));
+    }
 }

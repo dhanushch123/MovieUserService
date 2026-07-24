@@ -27,16 +27,16 @@ public class JWTFilter extends OncePerRequestFilter{
 	
 	@Override
 	protected boolean shouldNotFilter(HttpServletRequest request) {
-	    String path = request.getServletPath();
-	    
+	    String path = request.getServletPath(); 
+//	    path.startsWith("/public");
 	     return path.startsWith("/api/v1/auth/") ||
 	    	    path.startsWith("/oauth2/") ||
 	    	    path.startsWith("/login/oauth2/") ||
 	    	    path.startsWith("/swagger-ui/") ||
 	    	    path.equals("/swagger-ui.html") ||
 	    	    path.startsWith("/v3/api-docs") ||
-	    	    path.startsWith("/webjars/") ||
-	    	    path.startsWith("/public/");
+	    	    path.startsWith("/webjars/");
+	     
 
 	    	    
 	    	
@@ -45,6 +45,17 @@ public class JWTFilter extends OncePerRequestFilter{
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
+		System.out.println(
+	    	    "PATH: " + request.getRequestURI() +
+	    	    " | DISPATCH: " + request.getDispatcherType()
+	    	);
+	    System.out.println("FILTER INSTANCE: " + this.hashCode());
+	    
+		if (request.getAttribute("JWT_FILTER_APPLIED") != null) {
+		    filterChain.doFilter(request, response);
+		    return;
+		}
+		request.setAttribute("JWT_FILTER_APPLIED", true);
 		
 		String authHeader = request.getHeader("Authorization");
 		if(authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -57,10 +68,11 @@ public class JWTFilter extends OncePerRequestFilter{
 			filterChain.doFilter(request, response);
 			return;
 		}
-		String username = jwtService.extractUsername(token);
-		if(username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+//		String username = jwtService.extractUsername(token);
+		String email = jwtService.extractEmail(token);
+		if(email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 			// we have to set the token in security context 
-			UserDetails user = userDetailsService.loadUserByUsername(username);
+			UserDetails user = userDetailsService.loadUserByUsername(email);
 			UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(user,null,user.getAuthorities());
 			authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 			SecurityContextHolder.getContext().setAuthentication(authToken);

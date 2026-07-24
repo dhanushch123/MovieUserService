@@ -13,5 +13,10 @@
     "name": "app.frontend.url",
     "type": "java.lang.String",
     "description": "login page redirect url"
+  },
+  {
+    "name": "user-client.base-url",
+    "type": "java.lang.String",
+    "description": "User api base url"
   }
 ]}
