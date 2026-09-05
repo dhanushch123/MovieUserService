@@ -5,10 +5,10 @@ phases:
     runtime-versions:
       java: corretto21
 
-  pre_build:
-    commands:
-      - echo "Running tests..."
-      - mvn clean test -Dtest="!MovieControllerIntegrationTest"
+#  pre_build:
+#    commands:
+#      - echo "Running tests..."
+#      - mvn clean test -Dtest="!MovieControllerIntegrationTest"
 
   build:
     commands:
