@@ -11,6 +11,7 @@ import java.util.UUID;
 import org.springframework.http.ResponseCookie;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -53,7 +54,7 @@ public class UserService {
 			throw new RuntimeException("User already exists with same email or mobile");
 		}
 		user.setPassword(encoder.encode(user.getPassword()));
-		user.setUsername(user.getFirstName()+user.getMobile().substring(4,9));;
+		user.setUsername(user.getFirstName()+user.getMobile().substring(4,9));
 		repo.save(user);
 	}
 	
@@ -67,13 +68,13 @@ public class UserService {
 			Users user = repo.findByUsernameOrEmail(username,username).get();
 			return getAuthResponse(user,request,response);
 		}
-		return null;
+		throw new BadCredentialsException("Invalid Credentials");
 	}
 	
 	public AuthResponse getAuthResponse(Users user,HttpServletRequest request,HttpServletResponse response) throws NoSuchAlgorithmException {
 		String accessToken = jwtService.generateToken(user);
 		createSession(request,response,user);
-		return new AuthResponse(user.getId(),accessToken,user.getRoles().stream().map(role->role.name()).toList());
+		return new AuthResponse(user.getUserId(),accessToken,user.getRoles().stream().map(role->role.name()).toList());
 	}
 	
 	public void createSession(HttpServletRequest request,HttpServletResponse response,Users user) throws NoSuchAlgorithmException {
@@ -142,7 +143,7 @@ public class UserService {
 		Users user = session.getUser();
 		String accessToken = jwtService.generateToken(user);
 
-		return new AuthResponse(user.getId(),accessToken,user.getRoles().stream().map(role->role.name()).toList());
+		return new AuthResponse(user.getUserId(),accessToken,user.getRoles().stream().map(role->role.name()).toList());
 		
 	}
 
@@ -173,6 +174,9 @@ public class UserService {
 		}
 		return sb.toString();
 	}
-	
-	
+
+
+	public Users findByUsername(String username) {
+		return repo.findByUsername(username).get();
+	}
 }

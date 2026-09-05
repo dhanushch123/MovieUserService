@@ -74,7 +74,7 @@ public class JWTService {
 //        );
 
         return Jwts.builder()
-            .setSubject(user.getId().toString())
+            .setSubject(user.getUserId().toString())
             .claim("email",user.getEmail())
             .claim("roles", user.getRoles())
             .setIssuedAt(now)

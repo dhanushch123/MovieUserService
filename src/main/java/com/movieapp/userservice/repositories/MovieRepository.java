@@ -15,6 +15,9 @@ public interface MovieRepository extends JpaRepository<Movie,Integer> {
 	
 	@Query("SELECT m FROM Movie m WHERE m.genre = :genre")
 	List<Movie> getMoviesByGenre(@Param("genre") Genre genre);
-	
-	
+
+
+	boolean existsByTitle(String title);
+
+	boolean existsByDirector(String director);
 }
