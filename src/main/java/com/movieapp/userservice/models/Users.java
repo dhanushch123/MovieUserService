@@ -1,5 +1,6 @@
 package com.movieapp.userservice.models;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import jakarta.persistence.CollectionTable;
@@ -12,10 +13,15 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
+import lombok.*;
 
-@Entity
+
+@Getter
+@Setter
+@ToString(exclude = {"sessions", "posts"})
+@EqualsAndHashCode(exclude = {"sessions", "posts"})@Entity
 public class Users {
 	@Id
 	@GeneratedValue(strategy = GenerationType.UUID)
@@ -49,8 +55,23 @@ public class Users {
 	@Enumerated(EnumType.STRING)
 	private AuthProvider provider;
 	
+	private Boolean isProfileCompleted;
+	private Boolean isEmailVerified;
+	
+	@OneToMany(mappedBy="user")
+	private List<UserSession> sessions;
+
+	@OneToMany(mappedBy="author")
+	private List<Post> posts;
+	
+	@PrePersist
+	public void applyDefaults() {
+		if(isProfileCompleted == null) isProfileCompleted = false;
+		if(isEmailVerified == null) isEmailVerified = false;
+	}
+	
 	public Users() {}
-	public Users(String firstName,String lastName,String username,String email,String password,int age,String mobile,Gender gender,List<Role> roles,AuthProvider provider) {
+	public Users(String firstName,String lastName,String username,String email,String password,int age,String mobile,Gender gender,List<Role> roles,AuthProvider provider,List<Post> posts) {
 		this.lastName = lastName;
 		this.firstName = firstName;
 		this.email = email;
@@ -60,68 +81,11 @@ public class Users {
 		this.roles = roles;
 		this.provider = provider;
 		this.username = username;
+		this.sessions = new ArrayList<>();
+		this.posts = new ArrayList<>();
 	}
-	public String getUsername() {
-		return username;
-	}
-	public void setUsername(String username) {
-		this.username = username;
-	}
-	public AuthProvider getProvider() {
-		return provider;
-	}
-	public void setProvider(AuthProvider provider) {
-		this.provider = provider;
-	}
-	public String getFirstName() {
-		return firstName;
-	}
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
-	}
-	public String getLastName() {
-		return lastName;
-	}
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
-	public String getEmail() {
-		return email;
-	}
-	public void setEmail(String email) {
-		this.email = email;
-	}
-	public String getPassword() {
-		return password;
-	}
-	public void setPassword(String password) {
-		this.password = password;
-	}
-	public int getAge() {
-		return age;
-	}
-	public void setAge(int age) {
-		this.age = age;
-	}
-	public String getMobile() {
-		return mobile;
-	}
-	public void setMobile(String mobile) {
-		this.mobile = mobile;
-	}
-	public Gender getGender() {
-		return gender;
-	}
-	public void setGender(Gender gender) {
-		this.gender = gender;
-	}
-	public List<Role> getRoles() {
-		return roles;
-	}
-	public void setRoles(List<Role> roles) {
-		this.roles = roles;
-	}
-	public UUID getId() {
-		return userId;
-	}
+
+	
+	
+	
 }

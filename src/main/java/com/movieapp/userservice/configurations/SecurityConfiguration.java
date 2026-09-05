@@ -1,13 +1,15 @@
 package com.movieapp.userservice.configurations;
 
+import java.net.http.HttpRequest;
 import java.util.List;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -22,9 +24,11 @@ import com.movieapp.userservice.filters.JWTFilter;
 import com.movieapp.userservice.services.CustomOAuth2SuccessHandler;
 import com.movieapp.userservice.services.CustomOAuth2UserService;
 import com.movieapp.userservice.services.MyUserDetailsService;
+import com.movieapp.userservice.models.Role;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(securedEnabled = true)
 public class SecurityConfiguration {
 
 	
@@ -52,12 +56,11 @@ public class SecurityConfiguration {
 		.httpBasic(basic -> basic.disable())
 		.authorizeHttpRequests(request ->{
 			request
-			.requestMatchers("/api/v1/auth/**","/api/v1/auth/login","/public/**","/auth/oauth/**","/oauth2/**","/login/oauth2/**","/swagger-ui.html",
+			.requestMatchers("/api/v1/auth/**","/api/v1/auth/login","/public","/public/movie/**","/auth/oauth/**","/oauth2/**","/login/oauth2/**","/swagger-ui.html",
 			        "/swagger-ui/**",
 			        "/v3/api-docs",
 			        "/v3/api-docs/**",
-			        "/webjars/**")
-			.permitAll()
+			        "/webjars/**","/actuator/**","/redis/**").permitAll()
 			.anyRequest().authenticated();
 		})
 		.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

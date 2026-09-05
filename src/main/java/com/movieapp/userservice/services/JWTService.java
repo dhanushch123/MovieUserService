@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.movieapp.userservice.models.UserPrincipal;
+import com.movieapp.userservice.models.Users;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -60,21 +61,22 @@ public class JWTService {
         return KeyFactory.getInstance("RSA").generatePublic(keySpec);
     }
 
-    public String generateToken(UserPrincipal user) {
+    public String generateToken(Users user) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + EXPIRATION_TIME);
 
-        Map<String, List<String>> claims = new HashMap<>();
-        claims.put(
-            "roles",
-            user.getAuthorities().stream()
-                .map(a -> a.getAuthority())
-                .toList()
-        );
+//        Map<String, List<String>> claims = new HashMap<>();
+//        claims.put(
+//            "roles",
+//            user.getAuthorities().stream()
+//                .map(a -> a.getAuthority())
+//                .toList()
+//        );
 
         return Jwts.builder()
-            .setSubject(user.getUsername())
-            .setClaims(claims)
+            .setSubject(user.getUserId().toString())
+            .claim("email",user.getEmail())
+            .claim("roles", user.getRoles())
             .setIssuedAt(now)
             .setExpiration(expiry)
             .signWith(privateKey, SignatureAlgorithm.RS256)
@@ -91,8 +93,15 @@ public class JWTService {
     }
 
     public String extractUsername(String token) {
+    	
         return extractClaims(token).getSubject();
     }
+    
+    public String extractEmail(String token) {
+    	return (String) extractClaims(token).get("email");
+    }
+    
+   
 
     private Claims extractClaims(String token) {
         return Jwts.parserBuilder()
