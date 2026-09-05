@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.util.TimeZone;
@@ -15,6 +16,7 @@ import java.util.TimeZone;
 )
 @AutoConfigureWebTestClient
 @Import(TestContainersConfig.class)
+@ActiveProfiles("test")
 public abstract class TestConfiguration {
     static {
         TimeZone.setDefault(TimeZone.getTimeZone("Asia/Kolkata"));
