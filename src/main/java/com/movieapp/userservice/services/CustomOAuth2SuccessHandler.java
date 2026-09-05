@@ -28,9 +28,9 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler{
 	TempCodeService tempCodeService;
 	public CustomOAuth2SuccessHandler(MyUserDetailsService userDetailsService,JWTService jwtService,UserRepository repo,TempCodeService tempCodeService) {
 		this.userDetailsService = userDetailsService;
+		this.tempCodeService = tempCodeService;
 		this.jwtService = jwtService;
 		this.repo = repo;
-		this.tempCodeService = tempCodeService;
 	}
 	
 	@Value("${app.frontend.url}")
