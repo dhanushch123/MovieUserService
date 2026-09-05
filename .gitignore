@@ -33,6 +33,5 @@ build/
 .vscode/
 
 ### secrets ###
-src/main/resources/application.properties
-
+# Local environment variables. Never commit this file.
 .env

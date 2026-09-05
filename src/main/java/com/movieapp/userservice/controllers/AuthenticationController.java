@@ -1,10 +1,12 @@
 package com.movieapp.userservice.controllers;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,6 +27,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 
 @Tag(
@@ -59,10 +63,9 @@ public class AuthenticationController {
 	            content = @Content)
 	    })
 	@PostMapping("/login")
-	public ResponseEntity<?> login(@RequestBody UserDTO user) {
+	public ResponseEntity<?> login(@RequestBody UserDTO user,HttpServletRequest request,HttpServletResponse response) throws NoSuchAlgorithmException {
 		AuthResponse authResponse = null;
-		System.out.println(user.getUsername() + user.getPassword());
-		authResponse = userService.authenticate(user.getUsername(),user.getPassword());
+		authResponse = userService.authenticate(user.getUsername(),user.getPassword(),request,response);
 		return ResponseEntity.ok(authResponse);
 		
 	}
@@ -97,11 +100,11 @@ public class AuthenticationController {
 	        @ApiResponse(responseCode = "500", description = "Internal server error")
 	    })
 	@GetMapping("/token")
-	public ResponseEntity<?> getToken(@RequestParam String loginCode) {
+	public ResponseEntity<?> getToken(@RequestParam String loginCode,HttpServletRequest request,HttpServletResponse response) throws NoSuchAlgorithmException {
 		String email = tempCodeService.consumeCode(loginCode);
 		if(email != null) {
 			Users user = userService.findByEmail(email);
-			AuthResponse authResponse = userService.getAuthResponse(user);
+			AuthResponse authResponse = userService.getAuthResponse(user,request,response);
 			return ResponseEntity.ok(authResponse);
 		}
 		Map<String,String> map = new HashMap<>();
@@ -109,4 +112,58 @@ public class AuthenticationController {
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(map);
 	}
 	
+	@Operation(
+		    summary = "Refresh access token",
+		    description = "Validates the refresh token from cookies and issues a new JWT access token."
+		)
+		@ApiResponses(value = {
+		    @ApiResponse(
+		        responseCode = "200",
+		        description = "Access token refreshed successfully",
+		        content = @Content(
+		            mediaType = "application/json",
+		            schema = @Schema(implementation = AuthResponse.class)
+		        )
+		    ),
+		    @ApiResponse(
+		        responseCode = "401",
+		        description = "Invalid, expired, or missing refresh token"
+		    ),
+		    @ApiResponse(
+		        responseCode = "500",
+		        description = "Internal server error"
+		    )
+		})
+	@PostMapping("/refresh")
+	public ResponseEntity<?> getAccessToken(@CookieValue("RefreshToken") String refreshToken) {
+		Map<String,String> map = new HashMap<>();
+		AuthResponse authResponse = null;
+		if(refreshToken == null) {
+			map.put("message","No Refresh Token");
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(map);
+		}
+		try {
+			authResponse = userService.refreshAccessToken(refreshToken);
+		}
+		catch(Exception e) {
+			map.put("message","No Refresh Token");
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(map);
+		}
+		return ResponseEntity.ok(authResponse);
+	}
+	
+	@PostMapping("/logout")
+	public ResponseEntity<?> logout(@CookieValue("RefreshToken")String refreshToken,HttpServletResponse response) {
+		HashMap<String,String> map = new HashMap<>();
+		
+		try {
+			userService.invalidateSession(refreshToken,response);
+		}
+		catch(Exception e) {
+			System.out.println(e.getLocalizedMessage());
+		}
+		map.put("message", "Logged out successfully");
+		return ResponseEntity.ok(map);
+		
+	}
 }

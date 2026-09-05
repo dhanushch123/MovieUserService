@@ -5,24 +5,26 @@ import java.util.UUID;
 
 public class AuthResponse {
 	
-	String token;
+	String accessToken;
 	List<String> roles;
 	UUID userId;
 	
 	public AuthResponse() {}
 	
-	public AuthResponse(UUID userId,String token,List<String> role) {
+	public AuthResponse(UUID userId,String accessToken,List<String> role) {
 		this.userId = userId;
-		this.token = token;
+		this.accessToken = accessToken;
 		this.roles = role;
 	}
 
-	public String getToken() {
-		return token;
+	
+
+	public String getAccessToken() {
+		return accessToken;
 	}
 
-	public void setToken(String token) {
-		this.token = token;
+	public void setAccessToken(String accessToken) {
+		this.accessToken = accessToken;
 	}
 
 	public List<String> getRoles() {
