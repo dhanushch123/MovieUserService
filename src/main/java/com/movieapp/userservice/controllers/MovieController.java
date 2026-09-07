@@ -2,6 +2,7 @@ package com.movieapp.userservice.controllers;
 
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -18,6 +19,7 @@ import com.movieapp.userservice.models.Genre;
 import com.movieapp.userservice.models.Movie;
 import com.movieapp.userservice.services.MovieService;
 
+@Slf4j
 @RestController
 @RequestMapping("/public/movie")
 public class MovieController {
@@ -41,6 +43,7 @@ public class MovieController {
 	
 	@GetMapping("/{id}")
 	public ResponseEntity<Movie> getMovieById(@PathVariable Integer id) {
+		log.info("Get By Id Method Invoked");
 		return ResponseEntity.ok(service.getMovieById(id));
 	}
 
